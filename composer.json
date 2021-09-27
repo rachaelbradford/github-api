@@ -1,0 +1,8 @@
+{
+    "require": {
+        "knplabs/github-api": "^3.0",
+        "symfony/http-client": "^5.3",
+        "nyholm/psr7": "^1.4",
+        "symfony/dotenv": "^5.3"
+    }
+}
