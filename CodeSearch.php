@@ -12,10 +12,34 @@ use Symfony\Component\Dotenv\Dotenv;
  */
 class CodeSearch
 {
+    /**
+     * GitHub API client
+     *
+     * @var Github\Client
+     */
     private $client;
+
+    /**
+     * GitHub API query string
+     *
+     * @var string
+     */
     private $query;
 
-    public function __construct($query)
+    /**
+     * Filename where output is to be saved
+     *
+     * @var string
+     */
+    private $filename;
+
+    /**
+     * Constructor
+     *
+     * @param string $query
+     * @param string $filename
+     */
+    public function __construct($query, $filename)
     {
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/.env');
@@ -26,13 +50,14 @@ class CodeSearch
         // $this->acceptHeaderValue = 'application/vnd.github.v3.text-match+json';
 
         $this->query = $query;
+        $this->filename = $filename;
         $this->client = Client::createWithHttpClient(new HttplugClient());
         $this->client = new \Github\Client();
         $this->client->authenticate($auth_token, null, Github\Client::AUTH_ACCESS_TOKEN);
     }
 
     /**
-     * search
+     * Perform a code search
      *
      * @return void
      */
@@ -56,7 +81,10 @@ class CodeSearch
 
             print("Files found: " . count($files));
             print("RESULTS: " . PHP_EOL);
-            print_r($output);
+
+            if ($this->filename) {
+                file_put_contents("./$this->filename", print_r($output, true));
+            }
 
         } catch (\Exception $e) {
             print $e->getMessage() . PHP_EOL;
