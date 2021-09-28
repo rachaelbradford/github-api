@@ -49,7 +49,7 @@ class CodeSearch
         // in vendor/knplabs/github-api/lib/Github/Api/Search.php->code() change to the following
         // $this->acceptHeaderValue = 'application/vnd.github.v3.text-match+json';
         // return $this->get('/search/code', ['q' => $q, 'sort' => $sort, 'order' => $order, 'per_page' => 100]);
-        // if you need more than 100 results, we will have to add pagination support
+        // if you need more than 100 results, we will have to add pagination
 
         $this->query = $query;
         $this->filename = $filename;
@@ -68,28 +68,29 @@ class CodeSearch
     {
         try {
             $files = $this->client->api('search')->code($this->query);
-            $total_results = $files['total_count'];
+            $repos = [];
 
-            file_put_contents('./debug.txt', print_r($files, true));
+            foreach ($files['items'] as $file) {
+                $name = $file['repository']['name'];
 
-            $output = array_map(
-                function ($file) {
-                    $data = [
-                        'repository' => $file['repository']['name'],
-                        'path' => $file['path'],
-                        'url' => $file['html_url'],
-                        'text_matches' => $file['text_matches'][0]['fragment']
-                    ];
-                    return $data;
-                }, 
-                $files['items']
-            );
+                if (!array_key_exists($name, $repos)) {
+                    $repos[$name] = [];
+                }
 
-            print("Files found: " . count($files));
-            print("RESULTS: " . PHP_EOL);
+                $datum = [
+                    'path' => $file['path'],
+                    'url' => $file['html_url'],
+                    'text_matches' => $file['text_matches'][0]['fragment']
+                ];
+
+                array_push($repos[$name], $datum);
+            }
+
+            print("Files found: " . $files['total_count'] . PHP_EOL);
 
             if ($this->filename) {
-                file_put_contents("./$this->filename", print_r($output, true));
+                print("Saving output to: " . $this->filename . PHP_EOL);
+                file_put_contents("./$this->filename", json_encode($repos, JSON_PRETTY_PRINT));
             }
 
         } catch (\Exception $e) {
