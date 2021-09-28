@@ -49,6 +49,7 @@ class CodeSearch
         // in vendor/knplabs/github-api/lib/Github/Api/Search.php->code() change to the following
         // $this->acceptHeaderValue = 'application/vnd.github.v3.text-match+json';
         // return $this->get('/search/code', ['q' => $q, 'sort' => $sort, 'order' => $order, 'per_page' => 100]);
+        // if you need more than 100 results, we will have to add pagination support
 
         $this->query = $query;
         $this->filename = $filename;
